@@ -1,5 +1,8 @@
 langchain
 langchain_community
+langchain_core
+langchain_openai
+langchain_text_splitters
 langchainhub
 openai
 chromadb
@@ -7,4 +10,4 @@ youtube-transcript-api
 pytube
 transformers
 tiktoken
-dotenv
+python-dotenv

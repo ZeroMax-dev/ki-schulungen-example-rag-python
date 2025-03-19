@@ -1,5 +1,5 @@
-from langchain.vectorstores import Chroma
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_community.vectorstores import Chroma
+from langchain_openai import OpenAIEmbeddings
 
 # Document loader
 # https://python.langchain.com/docs/modules/data_connection/document_loaders/
@@ -10,7 +10,7 @@ documents = loader.load()
 
 # Split documents with text splitter
 # https://python.langchain.com/docs/modules/data_connection/document_transformers/
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=500,
     chunk_overlap=0
@@ -25,8 +25,8 @@ for document in documents:
 db = Chroma.from_documents(chunks, OpenAIEmbeddings(), persist_directory="./chroma_db")
 
 # Chat model with stdout streaming output
-from langchain.chat_models import ChatOpenAI
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain_openai import ChatOpenAI
+from langchain_core.callbacks import StreamingStdOutCallbackHandler
 llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], temperature=0)
 
 # Create a retriever with our vector store
