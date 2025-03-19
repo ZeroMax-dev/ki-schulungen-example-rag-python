@@ -1,11 +1,15 @@
 from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Document loader
 # https://python.langchain.com/docs/modules/data_connection/document_loaders/
 # https://python.langchain.com/docs/integrations/document_loaders/
-from langchain_community.document_loaders import YoutubeLoader
-loader = YoutubeLoader.from_youtube_url("https://www.youtube.com/watch?v=8fEEbKJoNbU")
+from langchain_community.document_loaders import TextLoader
+loader = TextLoader("alice_in_wonderland.md", encoding="utf-8")
 documents = loader.load()
 
 # Split documents with text splitter
@@ -56,15 +60,16 @@ rag_chain = (
 
 # questions to ask
 questions = [
-    "What is effective accelerationism?",
-    "What is Kardashev scale?",
-    "What energy sources could provide the needed energy?",
-    "What is the difference between e/acc and effective altruism?",
-    "What can you say abou black holes?",
+    "Who is the main character in the story?",
+    "What happens when Alice meets the Cheshire Cat?",
+    "What does the White Rabbit say?",
+    "What happens at the tea party?",
+    "How does Alice get to Wonderland?",
 ]
 
 # invoke the LCEL chain for each question
 for question in questions:
     print(f"Question: {question}\n")
     result = rag_chain.invoke(question)
+    print(result)
     print("\n#########################################\n")
