@@ -7,3 +7,4 @@ youtube-transcript-api
 pytube
 transformers
 tiktoken
+dotenv

@@ -1,9 +1,5 @@
 # LangChain From 0 To 1: Unveiling the Power of LLM Programming
 
-The talk 
-
-https://video.fosdem.org/2024/ub2252a/fosdem-2024-2384-langchain-from-0-to-1-unveiling-the-power-of-llm-programming.av1.webm
-
 ## Install
 
 (optional) create virtualenv
@@ -50,12 +46,6 @@ Key Takeaways:
 - Chains and other notable use cases
 
 Join us in this concise yet comprehensive session, where we demystify LangChain and empower you to harness the full potential of LLM programming. Whether you're a novice or an experienced developer, this talk is your gateway to building intelligent applications with ease.
-
-## Useful links
-
-### Presentation
-
-https://docs.google.com/presentation/d/1frjlNBY0Et7xpNizhKVtdtTLe09DXuQv8BjGmbRZyNk/
 
 ### Rag in production
 

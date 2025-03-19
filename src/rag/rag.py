@@ -1,5 +1,9 @@
 from langchain.vectorstores import Chroma
 from langchain.embeddings.openai import OpenAIEmbeddings
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Document loader
 # https://python.langchain.com/docs/modules/data_connection/document_loaders/
