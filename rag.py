@@ -41,7 +41,7 @@ retriever = db.as_retriever()
 # Chat model with stdout streaming output
 from langchain_openai import ChatOpenAI
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
-llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], temperature=0)
+llm = ChatOpenAI(model="gpt-5.4-mini", streaming=True, callbacks=[StreamingStdOutCallbackHandler()], temperature=0)
 
 # Create a prompt template
 # https://docs.langchain.com/oss/python/langchain/messages

@@ -31,7 +31,7 @@ db = Chroma.from_documents(chunks, OpenAIEmbeddings(), persist_directory="./chro
 # Chat model with stdout streaming output
 from langchain_openai import ChatOpenAI
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
-llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], temperature=0)
+llm = ChatOpenAI(model="gpt-5.4-mini", streaming=True, callbacks=[StreamingStdOutCallbackHandler()], temperature=0)
 
 # Create a retriever with our vector store
 # Use MultiQueryRetriever
