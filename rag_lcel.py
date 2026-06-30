@@ -1,4 +1,5 @@
-from langchain_community.vectorstores import Chroma
+# In LangChain v1 Chroma lives in its own package (pip install langchain-chroma).
+from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from dotenv import load_dotenv
 
@@ -6,14 +7,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Document loader
-# https://python.langchain.com/docs/modules/data_connection/document_loaders/
-# https://python.langchain.com/docs/integrations/document_loaders/
+# https://docs.langchain.com/oss/python/integrations/document_loaders
 from langchain_community.document_loaders import TextLoader
 loader = TextLoader("alice_in_wonderland.md", encoding="utf-8")
 documents = loader.load()
 
 # Split documents with text splitter
-# https://python.langchain.com/docs/modules/data_connection/document_transformers/
+# https://docs.langchain.com/oss/python/langchain/retrieval
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=500,
@@ -24,7 +24,7 @@ for document in documents:
     chunks += (text_splitter.create_documents([document.page_content], [document.metadata]))
 
 # Store our documents in a vector store
-# https://python.langchain.com/docs/modules/data_connection/vectorstores/
+# https://docs.langchain.com/oss/python/integrations/vectorstores
 # db is persistent and can be reused
 db = Chroma.from_documents(chunks, OpenAIEmbeddings(), persist_directory="./chroma_db")
 
@@ -35,15 +35,19 @@ llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], t
 
 # Create a retriever with our vector store
 # Use MultiQueryRetriever
-# https://python.langchain.com/docs/modules/data_connection/retrievers/MultiQueryRetriever
-from langchain.retrievers.multi_query import MultiQueryRetriever
+# https://docs.langchain.com/oss/python/langchain/retrieval
+from langchain_classic.retrievers.multi_query import MultiQueryRetriever
 retriever = MultiQueryRetriever.from_llm(
     retriever=db.as_retriever(), llm=llm
 )
 
-# Get the template from langchain hub https://smith.langchain.com/hub
-from langchain import hub
-prompt = hub.pull("rlm/rag-prompt")
+# A standard RAG prompt (equivalent to the well-known "rlm/rag-prompt" that used
+# to be pulled from LangChain Hub, inlined here so there is no extra dependency).
+from langchain_core.prompts import ChatPromptTemplate
+prompt = ChatPromptTemplate.from_messages([
+    ("human",
+     "You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.\nQuestion: {question} \nContext: {context} \nAnswer:"),
+])
 
 # create a chain using LCEL
 from langchain_core.runnables import RunnablePassthrough

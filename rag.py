@@ -1,4 +1,6 @@
-from langchain_community.vectorstores import Chroma
+# In LangChain v1 Chroma lives in its own package (pip install langchain-chroma),
+# not langchain_community anymore.
+from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from dotenv import load_dotenv
 
@@ -6,15 +8,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Document loader
-# https://python.langchain.com/docs/modules/data_connection/document_loaders/
-# https://python.langchain.com/docs/integrations/document_loaders/
+# https://docs.langchain.com/oss/python/integrations/document_loaders
 print("Document loader is loading documents...")
 from langchain_community.document_loaders import TextLoader
 loader = TextLoader("alice_in_wonderland.md", encoding="utf-8")
 documents = loader.load()
 
 # Split documents with text splitter
-# https://python.langchain.com/docs/modules/data_connection/document_transformers/
+# https://docs.langchain.com/oss/python/langchain/retrieval
 print("Text splitter is splitting documents...")
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 text_splitter = RecursiveCharacterTextSplitter(
@@ -26,7 +27,7 @@ for document in documents:
     chunks += (text_splitter.create_documents([document.page_content], [document.metadata]))
 
 # Store our documents in a vector store
-# https://python.langchain.com/docs/modules/data_connection/vectorstores/
+# https://docs.langchain.com/oss/python/integrations/vectorstores
 # (optional) add persist_directory so we can reuse the db without re-creating it
 print("Storing documents and embeddings in vector store...")
 db = Chroma.from_documents(chunks, OpenAIEmbeddings())
@@ -34,7 +35,7 @@ db = Chroma.from_documents(chunks, OpenAIEmbeddings())
 print("Ready to ask!\n###########################################\n")
 
 # Create a retriever with our vector store
-# https://python.langchain.com/docs/modules/data_connection/retrievers/
+# https://docs.langchain.com/oss/python/langchain/retrieval
 retriever = db.as_retriever()
 
 # Chat model with stdout streaming output
@@ -42,25 +43,14 @@ from langchain_openai import ChatOpenAI
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
 llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], temperature=0)
 
-# Create a prompt template https://python.langchain.com/docs/modules/model_io/prompts/
-
-
+# Create a prompt template
+# https://docs.langchain.com/oss/python/langchain/messages
 from langchain_core.prompts import ChatPromptTemplate
 
-from langchain_core.prompts import HumanMessagePromptTemplate
-
-from langchain_core.prompts import PromptTemplate
-prompt = ChatPromptTemplate(
-    input_variables=['context', 'question'],
-    messages=[
-        HumanMessagePromptTemplate(
-            prompt=PromptTemplate(
-                input_variables=['context', 'question'],
-                template="You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.\nQuestion: {question} \nContext: {context} \nAnswer:"
-                )
-            )
-    ]
-)
+prompt = ChatPromptTemplate.from_messages([
+    ("human",
+     "You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.\nQuestion: {question} \nContext: {context} \nAnswer:"),
+])
 
 # list of questions to ask
 questions = [
