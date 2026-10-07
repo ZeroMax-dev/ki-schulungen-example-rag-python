@@ -2,26 +2,29 @@
 
 ## Install
 
-(optional) create virtualenv
+Create a virtualenv and install the requirements
 ```
-python -m venv fosdemvenv && source fosdemvenv/bin/activate
-```
-
-Install requirements
-```
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
+
 ## API Key
 
+Create a `.env` file next to the scripts:
 ```
-export OPENAI_API_KEY=xx-xXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxX 
+OPENAI_API_KEY=sk-...
 ```
 
-## run
+## Run
 
-```
-python src/rag/rag.py
-```
+Two RAG variants over *Alice in Wonderland*, both built with LangChain v1 `create_agent`:
+
+| Script | Pattern | Vector store |
+|---|---|---|
+| `python rag.py` | **2-step RAG**: always retrieve, then answer (retrieval injected via `@dynamic_prompt` middleware) | `InMemoryVectorStore` |
+| `python rag_agent.py` | **Agentic RAG**: retrieval is a `@tool`; the agent decides when/what to search | Chroma, persisted in `./chroma_db` |
+
+Docs: https://docs.langchain.com/oss/python/deepagents/retrieval
 
 ## Talk Abstract
 
@@ -57,15 +60,11 @@ https://github.com/langchain-ai/chat-langchain
 
 ### LangChain documentation
 
-https://python.langchain.com/docs/get_started/introduction
+https://docs.langchain.com/oss/python/langchain/overview
 
 ### LangChain GitHub
 
 https://github.com/langchain-ai/langchain
-
-```
-python src/rag/rag.py
-```
 
 ## Links, tools, credits
 
