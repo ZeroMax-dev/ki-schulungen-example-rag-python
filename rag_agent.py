@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain.tools import tool
 from langchain_chroma import Chroma
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # Load environment variables from .env file
@@ -52,8 +52,17 @@ def retrieve_context(query: str):
     return serialized, docs
 
 
+# gpt-6-luna is a reasoning model. Reasoning + function tools requires OpenAI's
+# Responses API, so we turn it on explicitly.
+# https://docs.langchain.com/oss/python/integrations/chat/openai
+model = ChatOpenAI(
+    model="gpt-6-luna",
+    reasoning={"effort": "medium"},  # "none" | "low" | "medium" | "high" | ...
+    use_responses_api=True,
+)
+
 agent = create_agent(
-    model="openai:gpt-5.4-mini",
+    model=model,
     tools=[retrieve_context],
     system_prompt=(
         "You answer questions about the book \"Alice's Adventures in Wonderland\". "
@@ -62,6 +71,20 @@ agent = create_agent(
         "Keep the answer concise (three sentences maximum)."
     ),
 )
+
+def print_update(update):
+    """Print what each agent step produced: tool calls, tool results or the answer."""
+    for step, data in update.items():
+        message = data["messages"][-1]
+        if getattr(message, "tool_calls", None):
+            for call in message.tool_calls:
+                print(f"[{step}] calls {call['name']}({call['args']})")
+        elif step == "tools":
+            print(f"[{step}] {message.name} returned {len(message.text)} characters")
+        else:
+            # .text joins the text blocks (the Responses API also returns reasoning blocks)
+            print(f"[{step}] answer:\n{message.text}")
+
 
 # questions to ask
 questions = [
@@ -73,11 +96,13 @@ questions = [
 ]
 
 for question in questions:
-    # stream_mode="values" yields the full state after every step, so we can
-    # watch the agent call the tool (and with which query) before it answers.
-    for step in agent.stream(
+    print(f"Question: {question}\n")
+    # stream_mode="updates" yields what each step (model / tools) produced, so
+    # we can watch the agent call the tool (and with which query) before it answers.
+    # https://docs.langchain.com/oss/python/langchain/streaming
+    for update in agent.stream(
         {"messages": [{"role": "user", "content": question}]},
-        stream_mode="values",
+        stream_mode="updates",
     ):
-        step["messages"][-1].pretty_print()
+        print_update(update)
     print("\n#########################################\n")

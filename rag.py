@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain.agents.middleware import ModelRequest, dynamic_prompt
 from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # Load environment variables from .env file
@@ -61,8 +61,15 @@ def prompt_with_context(request: ModelRequest) -> str:
 
 
 # 5. Generate: an agent without tools is simply "prompt -> model -> answer".
+# gpt-6-luna is a reasoning model; we use OpenAI's Responses API (required as
+# soon as reasoning is combined with tools, see rag_agent.py).
+model = ChatOpenAI(
+    model="gpt-6-luna",
+    reasoning={"effort": "medium"},  # "none" | "low" | "medium" | "high" | ...
+    use_responses_api=True,
+)
 agent = create_agent(
-    model="openai:gpt-5.4-mini",
+    model=model,
     tools=[],
     middleware=[prompt_with_context],
 )
